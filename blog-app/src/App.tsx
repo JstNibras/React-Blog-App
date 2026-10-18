@@ -1,10 +1,19 @@
 import './App.css'
+import { useEffect } from 'react'
+import { auth, db } from './firebase/config'
 
 function App() {
+  useEffect(() => {
+    console.log("Firebase Auth initialized:", !!auth);
+    console.log("Firestore initialized:", !!db);
+  }, []);
 
   return (
-    <h1>Hello World</h1>
-  )
+    <main>
+      <h1>Blog App</h1>
+      <p>Firebase setup completed.</p>
+    </main>
+  );
 }
 
 export default App
