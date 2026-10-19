@@ -1,9 +1,32 @@
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { getBlogs } from "../services/blogService";
+import type { Blog } from "../types/blog"; 
 
 export default function BlogList(){
     const {user, logout} = useAuth();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+
+    const [blogs, setBlogs] = useState<Blog[]>([]);
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState("")
+
+    useEffect(() => {
+        async function fetchBlogs(){
+            try {
+                setError("");
+                const data = await getBlogs()
+                setBlogs(data)
+            } catch {
+                setError("Unable to load blogs")
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        void fetchBlogs()
+    }, [])
 
     async function handleLogout() {
         try {
@@ -52,9 +75,43 @@ export default function BlogList(){
                     </Link>
                 )}
 
-                <p className="empty-state">
-                Your blog list will appear here in Session 5.
-                </p>
+                {loading ? (
+                    <p className="empty-state">Loading blogs...</p>
+                    ) : error ? (
+                    <p className="error-message" role="alert">{error}</p>
+                    ) : blogs.length === 0 ? (
+                    <p className="empty-state">
+                        No blogs yet. Be the first to share a story!
+                    </p>
+                    ) : (
+                    <div className="blog-grid">
+                        {blogs.map((blog) => (
+                        <article className="blog-card" key={blog.id}>
+                            <h2>{blog.title}</h2>
+
+                            <p className="blog-excerpt">
+                            {blog.content.length > 180
+                                ? `${blog.content.slice(0, 180)}...`
+                                : blog.content}
+                            </p>
+
+                            <div className="blog-meta">
+                            <span>By {blog.authorEmail || "Unknown author"}</span>
+                            <span>
+                                {blog.createdAt.toLocaleDateString()}
+                            </span>
+                            </div>
+
+                            <Link
+                            className="read-more"
+                            to={`/blog/${blog.id}`}
+                            >
+                            Read more →
+                            </Link>
+                        </article>
+                        ))}
+                    </div>
+                )}
             </section>
         </main>
     )
