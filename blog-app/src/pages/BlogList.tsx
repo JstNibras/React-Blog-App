@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { getBlogs } from "../services/blogService";
 import type { Blog } from "../types/blog"; 
@@ -7,6 +7,7 @@ import type { Blog } from "../types/blog";
 export default function BlogList(){
     const {user, logout} = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const [blogs, setBlogs] = useState<Blog[]>([]);
     const [loading, setLoading] = useState(true)
@@ -15,18 +16,19 @@ export default function BlogList(){
     useEffect(() => {
         async function fetchBlogs(){
             try {
+                setLoading(true)
                 setError("");
                 const data = await getBlogs()
                 setBlogs(data)
-            } catch {
-                setError("Unable to load blogs")
+            } catch (err) {
+                setError(err instanceof Error ? err.message : "Faild to load blogs")
             } finally {
                 setLoading(false)
             }
         }
 
         void fetchBlogs()
-    }, [])
+    }, [location.key])
 
     async function handleLogout() {
         try {
