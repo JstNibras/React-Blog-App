@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { getBlogById, updateBlog } from "../services/blogService";
 import type { Blog } from "../types/blog";
+import { validateBlog } from "../utils/blogValidation";
 
 export default function EditBlog() {
   const { id } = useParams<{id:string}>();
@@ -54,6 +55,8 @@ export default function EditBlog() {
     event.preventDefault()
     setError("")
 
+    const validation = validateBlog({ title, content });
+
     if (!id || !blog || blog.authorId !== user?.uid) {
       setError("You are not authorized to edit this blog.");
       return;
@@ -61,6 +64,11 @@ export default function EditBlog() {
 
     if (!title.trim() || !content.trim()) {
       setError("Title and content are required.");
+      return;
+    }
+
+    if (!validation.valid) {
+      setError(validation.error);
       return;
     }
 
@@ -129,6 +137,9 @@ export default function EditBlog() {
               maxLength={150}
               required
             />
+            <p className="character-count">
+              {title.length}/150 characters
+            </p>
           </div>
 
           <div className="form-group">
@@ -140,6 +151,9 @@ export default function EditBlog() {
               rows={12}
               required
             />
+            <p className="character-count">
+              {content.length}/10000 characters
+            </p>
           </div>
 
           {error && (

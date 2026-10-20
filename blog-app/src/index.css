@@ -661,3 +661,16 @@ button {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.character-count {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 12px;
+  text-align: right;
+}
+
+.error-message {
+  color: #fca5a5;
+  font-size: 14px;
+  line-height: 1.5;
+}
