@@ -587,3 +587,28 @@ button {
   align-items: center;
   margin-top: 0;
 }
+
+.blog-search {
+  margin-top: 28px;
+  max-width: 520px;
+}
+
+.blog-search input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 16px;
+  border: 1px solid #475569;
+  border-radius: 10px;
+  background: #1e293b;
+  color: #f8fafc;
+  font: inherit;
+}
+
+.blog-search input:focus {
+  outline: 2px solid #6366f1;
+  border-color: #6366f1;
+}
+
+.blog-search input::placeholder {
+  color: #94a3b8;
+}

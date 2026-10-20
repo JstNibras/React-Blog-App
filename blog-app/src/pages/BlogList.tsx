@@ -9,9 +9,19 @@ export default function BlogList(){
     const navigate = useNavigate();
     const location = useLocation();
 
+    const [search, setSearch] = useState("")
     const [blogs, setBlogs] = useState<Blog[]>([]);
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
+
+    const filteredBlogs = blogs.filter((blog) => {
+        const searchTerm = search.trim().toLowerCase();
+
+        return (
+            blog.title.toLowerCase().includes(searchTerm) ||
+            blog.content.toLowerCase().includes(searchTerm)
+        )
+    })
 
     useEffect(() => {
         async function fetchBlogs(){
@@ -71,6 +81,16 @@ export default function BlogList(){
                 Read and share ideas with the community.
                 </p>
 
+                <div className="blog-search">
+                    <input
+                        type="search"
+                        placeholder="Search blogs by title or content..."
+                        value={search}
+                        onChange={(event) => setSearch(event.target.value)}
+                        aria-label="Search blogs"
+                    />
+                </div>
+
                 {user && (
                     <Link className="primary-link" to="/blog/new">
                         + Create a blog
@@ -82,12 +102,14 @@ export default function BlogList(){
                     ) : error ? (
                     <p className="error-message" role="alert">{error}</p>
                     ) : blogs.length === 0 ? (
-                    <p className="empty-state">
-                        No blogs yet. Be the first to share a story!
-                    </p>
+                        <p className="empty-state">
+                            {search.trim()
+                            ? "No blogs match your search."
+                            : "No blogs yet. Be the first to share a story!"}
+                        </p>
                     ) : (
                     <div className="blog-grid">
-                        {blogs.map((blog) => (
+                        {filteredBlogs.map((blog) => (
                         <article className="blog-card" key={blog.id}>
                             <h2>{blog.title}</h2>
 
