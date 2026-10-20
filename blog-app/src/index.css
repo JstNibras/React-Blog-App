@@ -612,3 +612,52 @@ button {
 .blog-search input::placeholder {
   color: #94a3b8;
 }
+
+
+.blog-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.blog-toolbar label {
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+.blog-toolbar select {
+  padding: 10px 14px;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  background: #1e293b;
+  color: #f8fafc;
+  font: inherit;
+  cursor: pointer;
+}
+
+.blog-toolbar select:focus {
+  outline: 2px solid #6366f1;
+  border-color: #6366f1;
+}
+
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 36px 0;
+}
+
+.pagination span {
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

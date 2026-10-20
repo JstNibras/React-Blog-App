@@ -14,6 +14,11 @@ export default function BlogList(){
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
 
+    const [sortBy, setSortBy] = useState<"newest" | "oldest" | "title">("newest");
+    const [currentPage, setCurrentPage] = useState(1)
+
+    const blogsPerPage = 6
+
     const filteredBlogs = blogs.filter((blog) => {
         const searchTerm = search.trim().toLowerCase();
 
@@ -22,6 +27,29 @@ export default function BlogList(){
             blog.content.toLowerCase().includes(searchTerm)
         )
     })
+
+    const sortedBlogs = [...filteredBlogs].sort((a, b) => {
+        switch (sortBy) {
+            case "oldest":
+                return a.createdAt.getTime() - b.createdAt.getTime()
+
+            case "title": 
+                return a.title.localeCompare(b.title);
+
+            case "newest":
+                default:
+                    return b.createdAt.getTime() - a.createdAt.getTime()
+        }
+    })
+
+    const totalPages = Math.ceil(sortedBlogs.length / blogsPerPage);
+    const startIndex = (currentPage - 1) * blogsPerPage;
+
+    const paginatedBlogs = sortedBlogs.slice(startIndex, startIndex + blogsPerPage)
+
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [search, sortBy])
 
     useEffect(() => {
         async function fetchBlogs(){
@@ -91,6 +119,29 @@ export default function BlogList(){
                     />
                 </div>
 
+                <div className="blog-toolbar">
+                    <label htmlFor="sort-blogs">Sort by</label>
+
+                    <select
+                        id="sort-blogs"
+                        value={sortBy}
+                        onChange={(event) =>
+                        setSortBy(
+                            event.target.value as "newest" | "oldest" | "title"
+                        )
+                        }
+                    >
+                        <option value="newest">Newest first</option>
+                        <option value="oldest">Oldest first</option>
+                        <option value="title">Title A–Z</option>
+                    </select>
+                </div>
+
+                <div>
+                    <hr></hr>
+                    <hr></hr>
+                </div>
+
                 {user && (
                     <Link className="primary-link" to="/blog/new">
                         + Create a blog
@@ -109,7 +160,7 @@ export default function BlogList(){
                         </p>
                     ) : (
                     <div className="blog-grid">
-                        {filteredBlogs.map((blog) => (
+                        {paginatedBlogs.map((blog) => (
                         <article className="blog-card" key={blog.id}>
                             <h2>{blog.title}</h2>
 
@@ -134,6 +185,33 @@ export default function BlogList(){
                             </Link>
                         </article>
                         ))}
+                    </div>      
+                )}
+                {totalPages > 1 && (
+                    <div className="pagination">
+                        <button
+                        className="secondary-button"
+                        onClick={() =>
+                            setCurrentPage((page) => Math.max(1, page - 1))
+                        }
+                        disabled={currentPage === 1}
+                        >
+                        ← Previous
+                        </button>
+
+                        <span>
+                        Page {currentPage} of {totalPages}
+                        </span>
+
+                        <button
+                        className="secondary-button"
+                        onClick={() =>
+                            setCurrentPage((page) => Math.min(totalPages, page + 1))
+                        }
+                        disabled={currentPage === totalPages}
+                        >
+                        Next →
+                        </button>
                     </div>
                 )}
             </section>
