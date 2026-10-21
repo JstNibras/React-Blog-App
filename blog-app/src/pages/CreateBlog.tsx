@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../hooks/useAuth";
 import { createBlog } from "../services/blogService";
+import { validateBlog } from "../utils/blogValidation";
 
 export default function CreateBlog() {
 
@@ -23,11 +24,17 @@ export default function CreateBlog() {
             return
         }
 
+        const validation = validateBlog({title, content});
         const trimmedTitle = title.trim()
         const trimmedContent = content.trim()
 
         if (!trimmedTitle || !trimmedContent) {
             setError("Title and Content needed")
+        }
+
+        if (!validation.valid) {
+            setError(validation.error);
+            return;
         }
 
         setSubmitting(true)
@@ -69,6 +76,9 @@ export default function CreateBlog() {
                     maxLength={150}
                     required
                     />
+                    <p className="character-count">
+                        {title.length}/150 characters
+                    </p>
                 </div>
 
                 <div className="form-group">
@@ -81,6 +91,9 @@ export default function CreateBlog() {
                     rows={10}
                     required
                     />
+                    <p className="character-count">
+                        {content.length}/10000 characters
+                        </p>
                 </div>
 
                 {error && (
