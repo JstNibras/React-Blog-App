@@ -81,7 +81,15 @@ export async function updateBlog(id: string, input: UpdateBlogInput): Promise<vo
 }
 
 export async function deleteBlog(id: string): Promise<void> {
-    const docRef = doc(db, "blogs", id)
+    console.log("Attempting to delete blog:", id);
 
-    await deleteDoc(docRef);
+    const blogRef = doc(db, "blogs", id);
+
+    try {
+        await deleteDoc(blogRef);
+        console.log("Firestore delete completed:", id);
+    } catch (error) {
+        console.error("Firestore delete failed:", error);
+        throw error;
+    }
 }

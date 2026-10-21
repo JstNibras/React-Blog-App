@@ -1,14 +1,21 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { getBlogById } from "../services/blogService";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { getBlogById, deleteBlog } from "../services/blogService";
+import { useAuth } from "../hooks/useAuth";
 import type { Blog } from "../types/blog"; 
 
 export default function BlogDetails() {
     const {id} = useParams<{id: string}>();
-    
+    const { user } = useAuth();
+
+    const navigate = useNavigate()
+
     const [blog, setBlog] = useState<Blog | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
+    const [deleting, setDeleting] = useState(false)
+
+    const isAuthor = user?.uid === blog?.authorId;
 
     useEffect(() => {
         async function fetchBlog() {
@@ -60,6 +67,33 @@ export default function BlogDetails() {
             </main>
         );
     }
+
+    async function handleDelete() {
+
+        if (!blog || !isAuthor) {
+            return;
+        }
+
+        const confirmed = window.confirm("Are You sure to delete this blog")
+
+        if (!confirmed) return
+
+        try {
+            setDeleting(true)
+            const deleteId = blog.id
+            await deleteBlog(deleteId)
+            const deletedBlog = await getBlogById(deleteId)
+            if (deletedBlog !== null) {
+                setError("The blog still exists in Firestore after deletion.");
+                return;
+            }
+            navigate("/blog", { replace: true });
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to delete blog")
+        } finally {
+            setDeleting(false)
+        }
+    }
     
     return (
         <main className="app-page">
@@ -88,6 +122,25 @@ export default function BlogDetails() {
                 <div className="blog-full-content">
                 {blog.content}
                 </div>
+
+                {isAuthor && (
+                    <div className="blog-actions">
+                        <Link
+                        className="primary-link"
+                        to={`/blog/edit/${blog.id}`}
+                        >
+                        Edit blog
+                        </Link>
+
+                        <button
+                        className="danger-button"
+                        onClick={handleDelete}
+                        disabled={deleting}
+                        >
+                        {deleting ? "Deleting..." : "Delete blog"}
+                        </button>
+                    </div>
+                )}
             </article>
         </main>
     )
